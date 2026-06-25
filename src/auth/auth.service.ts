@@ -1,28 +1,37 @@
 import { Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { CreateUserDto } from '../user/dto/user.dto';
+import {UserLoginDto} from '../user/dto/userlogin.dto';
+import * as bcrypt from 'bcrypt';
+
 
 @Injectable()
 export class AuthService {
     constructor(private readonly userService: UserService) { }
 
-    createUser(createUserDto: CreateUserDto) {
-        return this.userService.createUser(createUserDto);
+    async createUser(createUserDto: CreateUserDto) {
+        const saltOrRoundes= 10;
+        const hashedPassword = await bcrypt.hash(createUserDto.password, saltOrRoundes);
+        return this.userService.createUser({...createUserDto, password: hashedPassword});   
     }
 
-    getAllUsers() {
-        return this.userService.getAllUsers();
-    }
+    // loginUser(loginUserDto:UserLoginDto ) {
+    //     return this.userService.loginUser(UserLoginDto);
+    // }
 
-    getUserById(id: string) {
-        return this.userService.getUserById(id);
-    }
+    // getAllUsers() {
+    //     return this.userService.getAllUsers();
+    // }
 
-    updateUser(id: string, createUserDto: CreateUserDto) {
-        return this.userService.updateUser(id, createUserDto)
-    }
+    // getUserById(id: string) {
+    //     return this.userService.getUserById(id);
+    // }
 
-    deleteUser(id: string) {
-        return this.userService.deleteUser(id)
-    }
+    // updateUser(id: string, createUserDto: CreateUserDto) {
+    //     return this.userService.updateUser(id, createUserDto)
+    // }
+
+    // deleteUser(id: string) {
+    //     return this.userService.deleteUser(id)
+    // }
 }

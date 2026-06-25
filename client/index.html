@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin & Student Authentication</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#4f46e5,#7c3aed);
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:450px;
+    background:#fff;
+    border-radius:15px;
+    padding:30px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+
+.tabs{
+    display:flex;
+    margin-bottom:20px;
+}
+
+.tabs button{
+    flex:1;
+    border:none;
+    padding:12px;
+    cursor:pointer;
+    background:#e5e7eb;
+    font-size:16px;
+    font-weight:bold;
+}
+
+.tabs .active{
+    background:#4f46e5;
+    color:white;
+}
+
+.role-buttons{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.role-buttons button{
+    flex:1;
+    border:none;
+    padding:10px;
+    cursor:pointer;
+    background:#e5e7eb;
+    border-radius:8px;
+}
+
+.role-buttons .active{
+    background:#7c3aed;
+    color:white;
+}
+
+h2{
+    text-align:center;
+    margin-bottom:20px;
+    color:#333;
+}
+
+.form{
+    display:none;
+}
+
+.form.active{
+    display:block;
+}
+
+.input-group{
+    margin-bottom:15px;
+}
+
+.input-group input{
+    width:100%;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    outline:none;
+}
+
+.submit-btn{
+    width:100%;
+    border:none;
+    padding:12px;
+    border-radius:8px;
+    background:#4f46e5;
+    color:white;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:bold;
+}
+
+.submit-btn:hover{
+    opacity:.9;
+}
+
+.message{
+    margin-top:15px;
+    text-align:center;
+    font-weight:bold;
+}
+
+.success{
+    color:green;
+}
+
+.error{
+    color:red;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="tabs">
+        <button id="loginTab" class="active">Login</button>
+        <button id="registerTab">Register</button>
+    </div>
+
+    <div class="role-buttons">
+        <button id="adminBtn" class="active">Admin</button>
+        <button id="studentBtn">Student</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <form id="loginForm" class="form active">
+        <h2 id="loginHeading">Admin Login</h2>
+
+        <div class="input-group">
+            <input type="email" id="loginEmail" placeholder="Enter Email" required>
+        </div>
+
+        <div class="input-group">
+            <input type="password" id="loginPassword" placeholder="Enter Password" required>
+        </div>
+
+        <button type="submit" class="submit-btn">
+            Login
+        </button>
+    </form>
+
+    <!-- REGISTER FORM -->
+    <form id="registerForm" class="form">
+        <h2 id="registerHeading">Admin Register</h2>
+
+        <div class="input-group">
+            <input type="text" id="registerName" placeholder="Enter Name" required>
+        </div>
+
+        <div class="input-group">
+            <input type="email" id="registerEmail" placeholder="Enter Email" required>
+        </div>
+
+        <div class="input-group">
+            <input type="password" id="registerPassword" placeholder="Enter Password" required>
+        </div>
+
+        <button type="submit" class="submit-btn">
+            Register
+        </button>
+    </form>
+
+    <div id="message" class="message"></div>
+
+</div>
+
+<script>
+
+// ======================
+// API URLS
+// ======================
+
+const ADMIN_LOGIN_API = "http://localhost:3000/admin/login";
+const ADMIN_REGISTER_API = "http://localhost:3000/admin/register";
+
+const STUDENT_LOGIN_API = "http://localhost:3000/student/login";
+const STUDENT_REGISTER_API = "http://localhost:4000/api/auth/register";
+
+// ======================
+// ELEMENTS
+// ======================
+
+const loginTab = document.getElementById("loginTab");
+const registerTab = document.getElementById("registerTab");
+
+const loginForm = document.getElementById("loginForm");
+const registerForm = document.getElementById("registerForm");
+
+const adminBtn = document.getElementById("adminBtn");
+const studentBtn = document.getElementById("studentBtn");
+
+const loginHeading = document.getElementById("loginHeading");
+const registerHeading = document.getElementById("registerHeading");
+
+const message = document.getElementById("message");
+
+let currentRole = "admin";
+
+// ======================
+// TAB SWITCHING
+// ======================
+
+loginTab.addEventListener("click", () => {
+    loginTab.classList.add("active");
+    registerTab.classList.remove("active");
+
+    loginForm.classList.add("active");
+    registerForm.classList.remove("active");
+});
+
+registerTab.addEventListener("click", () => {
+    registerTab.classList.add("active");
+    loginTab.classList.remove("active");
+
+    registerForm.classList.add("active");
+    loginForm.classList.remove("active");
+});
+
+// ======================
+// ROLE SWITCHING
+// ======================
+
+adminBtn.addEventListener("click", () => {
+    currentRole = "admin";
+
+    adminBtn.classList.add("active");
+    studentBtn.classList.remove("active");
+
+    loginHeading.innerText = "Admin Login";
+    registerHeading.innerText = "Admin Register";
+});
+
+studentBtn.addEventListener("click", () => {
+    currentRole = "student";
+
+    studentBtn.classList.add("active");
+    adminBtn.classList.remove("active");
+
+    loginHeading.innerText = "Student Login";
+    registerHeading.innerText = "Student Register";
+});
+
+// ======================
+// LOGIN API
+// ======================
+
+loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    message.innerHTML = "Loading...";
+
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+
+    const api =
+        currentRole === "admin"
+        ? ADMIN_LOGIN_API
+        : STUDENT_LOGIN_API;
+
+    try{
+        const response = await fetch(api,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                email,
+                password
+            })
+        });
+
+        const data = await response.json();
+
+        if(response.ok){
+
+            message.className = "message success";
+            message.innerHTML = data.message || "Login Successful";
+
+            // Save Token
+            if(data.access_token){
+                localStorage.setItem("token",data.access_token);
+            }
+
+        }else{
+            message.className = "message error";
+            message.innerHTML = data.message || "Login Failed";
+        }
+
+    }catch(error){
+
+        message.className = "message error";
+        message.innerHTML = "Server Error";
+        console.error(error);
+    }
+});
+
+// ======================
+// REGISTER API
+// ======================
+
+registerForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    message.innerHTML = "Loading...";
+
+    const name = document.getElementById("registerName").value;
+    const email = document.getElementById("registerEmail").value;
+    const password = document.getElementById("registerPassword").value;
+
+    const api =
+        currentRole === "admin"
+        ? ADMIN_REGISTER_API
+        : STUDENT_REGISTER_API;
+
+    try{
+
+        const response = await fetch(api,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                name,
+                email,
+                password
+            })
+        });
+
+        const data = await response.json();
+
+        if(response.ok){
+
+            message.className = "message success";
+            message.innerHTML = data.message || "Registration Successful";
+
+            registerForm.reset();
+
+        }else{
+
+            message.className = "message error";
+            message.innerHTML = data.message || "Registration Failed";
+        }
+
+    }catch(error){
+
+        message.className = "message error";
+        message.innerHTML = "Server Error";
+        console.error(error);
+    }
+});
+
+</script>
+
+</body>
+</html>
