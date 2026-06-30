@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import { CreateUserDto } from '../user/dto/user.dto';
-import {UserLoginDto} from '../user/dto/userlogin.dto';
+import { RegisterUserDto } from '../user/dto/registerUser.dto';
+import {LoginUserDto} from '../user/dto/loginUser.dto';
 import * as bcrypt from 'bcrypt';
 
 
@@ -9,19 +9,19 @@ import * as bcrypt from 'bcrypt';
 export class AuthService {
     constructor(private readonly userService: UserService) { }
 
-    async createUser(createUserDto: CreateUserDto) {
+    async createUser(registerUserDto: RegisterUserDto) {
         const saltOrRoundes= 10;
-        const hashedPassword = await bcrypt.hash(createUserDto.password, saltOrRoundes);
-        return this.userService.createUser({...createUserDto, password: hashedPassword});   
+        const hashedPassword = await bcrypt.hash(registerUserDto.password, saltOrRoundes);
+        return this.userService.createUser({...registerUserDto, password: hashedPassword});   
     }
 
-    // loginUser(loginUserDto:UserLoginDto ) {
-    //     return this.userService.loginUser(UserLoginDto);
-    // }
+    loginUser(loginUserDto:LoginUserDto ) {
+        return this.userService.loginUser(loginUserDto);
+    }
 
-    // getAllUsers() {
-    //     return this.userService.getAllUsers();
-    // }
+    getAllUsers() {
+        return this.userService.getAllUsers();
+    }
 
     // getUserById(id: string) {
     //     return this.userService.getUserById(id);

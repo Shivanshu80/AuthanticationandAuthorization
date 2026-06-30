@@ -1,28 +1,30 @@
-import { Controller, Post, Body, Get, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Delete, Put, HttpCode, HttpStatus,
+  UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from '../user/dto/user.dto';
-import {UserLoginDto} from '../user/dto/userlogin.dto'
-
+import { RegisterUserDto } from '../user/dto/registerUser.dto';
+import { LoginUserDto } from '../user/dto/loginUser.dto';
+import { AuthGuard } from './auth.guard';
 @Controller('api/auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) { }
 
     @Post('/register')
-    createUser(@Body() createUserDto: CreateUserDto) {
-        return this.authService.createUser(createUserDto);
+    createUser(@Body() registerUserDto: RegisterUserDto) {
+        return this.authService.createUser(registerUserDto);
     }
 
-    // @Post('/login')
-    // loginUser(@Body() userLoginDto:UserLoginDto ) {
-    //     return this.authService.loginUser(userLoginDto);
-    // }
+    @HttpCode(HttpStatus.OK)
+    @Post('/login')
+    loginUser(@Body() loginUserDto: LoginUserDto) {
+        return this.authService.loginUser(loginUserDto);
+    }
 
 
-
-    // @Get()
-    // getAllUsers() {
-    //     return this.authService.getAllUsers();
-    // }
+     @UseGuards(AuthGuard)
+    @Get('/users')
+    getAllUsers(@Request() req) {
+        return req.user
+    }
 
     // @Get(':id')
     // getUserById(@Param('id') id: string) {
