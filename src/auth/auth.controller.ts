@@ -1,44 +1,30 @@
-import { Controller, Post, Body, Get, Param, Delete, Put, HttpCode, HttpStatus,
-  UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Body,Post, Delete } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { RegisterUserDto } from '../user/dto/registerUser.dto';
-import { LoginUserDto } from '../user/dto/loginUser.dto';
-import { AuthGuard } from './auth.guard';
+import { User } from './user.dto'
+
 @Controller('api/auth')
 export class AuthController {
+
     constructor(private readonly authService: AuthService) { }
 
-    @Post('/register')
-    createUser(@Body() registerUserDto: RegisterUserDto) {
-        return this.authService.createUser(registerUserDto);
+    @Get('users')
+    getUsers(): User[] {
+        return this.authService.getUsers();
     }
 
-    @HttpCode(HttpStatus.OK)
-    @Post('/login')
-    loginUser(@Body() loginUserDto: LoginUserDto) {
-        return this.authService.loginUser(loginUserDto);
+    @Post('user')
+    getUser(@Body() user:User): User[] {
+        return this.authService.getUser(user);
     }
 
-
-     @UseGuards(AuthGuard)
-    @Get('/users')
-    getAllUsers(@Request() req) {
-        return req.user
+    @Post('adduser')
+    addUser(@Body() user:User): any {
+        return this.authService.addUser(user);
     }
 
-    // @Get(':id')
-    // getUserById(@Param('id') id: string) {
-    //     return this.authService.getUserById(id);
-    // }
-
-    // @Put(':id')
-    // updateUser(@Param('id') id: string, @Body() createUserDto: CreateUserDto) {
-    //     return this.authService.updateUser(id, createUserDto)
-    // }
-
-    // @Delete(':id')
-    // deleteUser(@Param('id') id: string) {
-    //     return this.authService.deleteUser(id)
-    // }
-
+    
+    @Delete('deleteuser')
+    deleteUser(@Body() user:User): any {
+        return this.authService.deleteUser(user);
+    }
 }
