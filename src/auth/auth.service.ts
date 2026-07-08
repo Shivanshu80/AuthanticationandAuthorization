@@ -27,29 +27,46 @@ export class AuthService {
         const usrs = this.users.filter((u) => u.email === user.email);
         if (usrs.length !== 0) {
             throw new UnauthorizedException('user already exists');
-        }else{
+        } else {
             this.users.push(user);
-        }  
+        }
         return {
-            message:'user add successfully',
-            user:user
+            message: 'user add successfully',
+            user: user
         }
     }
 
-     deleteUser(user: User): any {
-        const usr = this.users.filter((u)=> u.email === user.email)
-        if(usr.length !== 0){
-          const indx =  this.users.findIndex((u)=> u.email === user.email)
-          this.users.splice(indx,1)
-          return{
-            message:'user deleted successfully',
-            user:usr
-          }
-        }else{
+    deleteUser(user: User): any {
+        const usr = this.users.filter((u) => u.email === user.email)
+        if (usr.length !== 0) {
+            const indx = this.users.findIndex((u) => u.email === user.email)
+            this.users.splice(indx, 1)
+            return {
+                message: 'user deleted successfully',
+                user: usr
+            }
+        } else {
             throw new NotFoundException('user not found');
         }
 
     }
 
-    
+    updateUser(param: string, user: User): any {
+        const usr = this.users.find((u) => u.email === param);
+        if (usr === undefined) {
+            throw new NotFoundException('user not found');
+        } else {
+            if(!user.name || !user.email || !user.password){
+                throw new UnauthorizedException('please enter all felids correctly');
+            }
+            { usr.name = user.name, usr.email = user.email, usr.password = user.password }
+            const obj = {
+                message: 'user updated successfully',
+                user: usr
+            }
+            return obj
+        }
+    }
+
+
 }

@@ -1,375 +1,354 @@
+
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin & Student Authentication</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CRUD Todo App</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0f172a;
+        --panel: #111827;
+        --panel-2: #1f2937;
+        --text: #f8fafc;
+        --muted: #94a3b8;
+        --accent: #38bdf8;
+        --accent-2: #818cf8;
+        --danger: #f87171;
+        --success: #4ade80;
+      }
 
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial, Helvetica, sans-serif;
-}
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        background: linear-gradient(135deg, var(--bg), #1e293b);
+        color: var(--text);
+        min-height: 100vh;
+        padding: 24px;
+      }
 
-body{
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:linear-gradient(135deg,#4f46e5,#7c3aed);
-    padding:20px;
-}
+      .app {
+        max-width: 980px;
+        margin: 0 auto;
+        background: rgba(17, 24, 39, 0.92);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 22px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+        overflow: hidden;
+      }
 
-.container{
-    width:100%;
-    max-width:450px;
-    background:#fff;
-    border-radius:15px;
-    padding:30px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.2);
-}
+      .hero {
+        padding: 24px 28px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        color: #0f172a;
+      }
 
-.tabs{
-    display:flex;
-    margin-bottom:20px;
-}
+      .hero h1 { margin: 0 0 6px; font-size: 28px; }
+      .hero p { margin: 0; font-size: 14px; }
 
-.tabs button{
-    flex:1;
-    border:none;
-    padding:12px;
-    cursor:pointer;
-    background:#e5e7eb;
-    font-size:16px;
-    font-weight:bold;
-}
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr;
+        gap: 20px;
+        padding: 24px;
+      }
 
-.tabs .active{
-    background:#4f46e5;
-    color:white;
-}
+      .card {
+        background: var(--panel);
+        border-radius: 16px;
+        padding: 18px;
+        border: 1px solid rgba(255,255,255,0.06);
+      }
 
-.role-buttons{
-    display:flex;
-    gap:10px;
-    margin-bottom:20px;
-}
+      .card h2 { margin-top: 0; font-size: 20px; }
 
-.role-buttons button{
-    flex:1;
-    border:none;
-    padding:10px;
-    cursor:pointer;
-    background:#e5e7eb;
-    border-radius:8px;
-}
+      .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+      label { font-size: 13px; color: var(--muted); }
+      input {
+        border: 1px solid rgba(255,255,255,0.1);
+        background: var(--panel-2);
+        color: var(--text);
+        padding: 11px 12px;
+        border-radius: 10px;
+        outline: none;
+      }
 
-.role-buttons .active{
-    background:#7c3aed;
-    color:white;
-}
+      input:focus { border-color: var(--accent); }
 
-h2{
-    text-align:center;
-    margin-bottom:20px;
-    color:#333;
-}
+      .actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 14px;
+        flex-wrap: wrap;
+      }
 
-.form{
-    display:none;
-}
+      button {
+        border: none;
+        border-radius: 10px;
+        padding: 10px 14px;
+        cursor: pointer;
+        font-weight: bold;
+      }
 
-.form.active{
-    display:block;
-}
+      .primary { background: var(--accent); color: #06111f; }
+      .secondary { background: #334155; color: var(--text); }
+      .danger { background: var(--danger); color: white; }
+      button:disabled { opacity: 0.6; cursor: not-allowed; }
 
-.input-group{
-    margin-bottom:15px;
-}
+      .status {
+        margin-top: 14px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        min-height: 42px;
+        font-size: 14px;
+      }
+      .status.success { background: rgba(74, 222, 128, 0.16); color: var(--success); }
+      .status.error { background: rgba(248, 113, 113, 0.15); color: #fecaca; }
 
-.input-group input{
-    width:100%;
-    padding:12px;
-    border:1px solid #ccc;
-    border-radius:8px;
-    outline:none;
-}
+      .user-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+      .user-item {
+        background: var(--panel-2);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 12px;
+        padding: 12px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
+      .user-info { cursor: pointer; }
+      .user-name { font-weight: 700; }
+      .user-email { color: var(--muted); font-size: 13px; margin-top: 3px; }
+      .user-actions { display: flex; gap: 8px; }
 
-.submit-btn{
-    width:100%;
-    border:none;
-    padding:12px;
-    border-radius:8px;
-    background:#4f46e5;
-    color:white;
-    cursor:pointer;
-    font-size:16px;
-    font-weight:bold;
-}
+      @media (max-width: 800px) {
+        .grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="hero">
+        <h1>CRUD Todo App</h1>
+        <p>Create, view, update, and delete user entries from your backend API.</p>
+      </div>
 
-.submit-btn:hover{
-    opacity:.9;
-}
+      <div class="grid">
+        <section class="card">
+          <h2>User Form</h2>
+          <div class="field">
+            <label for="name">Name</label>
+            <input id="name" placeholder="Enter full name" />
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" type="email" placeholder="Enter email" />
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password" placeholder="Enter password" />
+          </div>
 
-.message{
-    margin-top:15px;
-    text-align:center;
-    font-weight:bold;
-}
+          <div class="actions">
+            <button id="submitBtn" class="primary">Add User</button>
+            <button id="clearBtn" class="secondary">Clear</button>
+            <button id="deleteBtn" class="danger" disabled>Delete</button>
+          </div>
 
-.success{
-    color:green;
-}
+          <div id="status" class="status"></div>
+        </section>
 
-.error{
-    color:red;
-}
-</style>
-</head>
-<body>
-
-<div class="container">
-
-    <div class="tabs">
-        <button id="loginTab" class="active">Login</button>
-        <button id="registerTab">Register</button>
+        <section class="card">
+          <h2>Users</h2>
+          <ul id="userList" class="user-list"></ul>
+        </section>
+      </div>
     </div>
 
-    <div class="role-buttons">
-        <button id="adminBtn" class="active">Admin</button>
-        <button id="studentBtn">Student</button>
-    </div>
+    <script>
+      const state = { selectedEmail: '', apiBase: '' };
+      const nameInput = document.getElementById('name');
+      const emailInput = document.getElementById('email');
+      const passwordInput = document.getElementById('password');
+      const submitBtn = document.getElementById('submitBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const deleteBtn = document.getElementById('deleteBtn');
+      const statusEl = document.getElementById('status');
+      const userListEl = document.getElementById('userList');
 
-    <!-- LOGIN FORM -->
-    <form id="loginForm" class="form active">
-        <h2 id="loginHeading">Admin Login</h2>
+      function setStatus(message, type = 'success') {
+        statusEl.textContent = message;
+        statusEl.className = `status ${type}`;
+      }
 
-        <div class="input-group">
-            <input type="email" id="loginEmail" placeholder="Enter Email" required>
-        </div>
+      function resetForm() {
+        nameInput.value = '';
+        emailInput.value = '';
+        passwordInput.value = '';
+        state.selectedEmail = '';
+        submitBtn.textContent = 'Add User';
+        deleteBtn.disabled = true;
+      }
 
-        <div class="input-group">
-            <input type="password" id="loginPassword" placeholder="Enter Password" required>
-        </div>
+      async function requestJson(url, options = {}) {
+        const response = await fetch(url, options);
+        const data = await response.json().catch(() => ({}));
 
-        <button type="submit" class="submit-btn">
-            Login
-        </button>
-    </form>
-
-    <!-- REGISTER FORM -->
-    <form id="registerForm" class="form">
-        <h2 id="registerHeading">Admin Register</h2>
-
-        <div class="input-group">
-            <input type="text" id="registerName" placeholder="Enter Name" required>
-        </div>
-
-        <div class="input-group">
-            <input type="email" id="registerEmail" placeholder="Enter Email" required>
-        </div>
-
-        <div class="input-group">
-            <input type="password" id="registerPassword" placeholder="Enter Password" required>
-        </div>
-
-        <button type="submit" class="submit-btn">
-            Register
-        </button>
-    </form>
-
-    <div id="message" class="message"></div>
-
-</div>
-
-<script>
-
-// ======================
-// API URLS
-// ======================
-
-const ADMIN_LOGIN_API = "http://localhost:3000/admin/login";
-const ADMIN_REGISTER_API = "http://localhost:3000/admin/register";
-
-const STUDENT_LOGIN_API = "http://localhost:3000/student/login";
-const STUDENT_REGISTER_API = "http://localhost:4000/api/auth/register";
-
-// ======================
-// ELEMENTS
-// ======================
-
-const loginTab = document.getElementById("loginTab");
-const registerTab = document.getElementById("registerTab");
-
-const loginForm = document.getElementById("loginForm");
-const registerForm = document.getElementById("registerForm");
-
-const adminBtn = document.getElementById("adminBtn");
-const studentBtn = document.getElementById("studentBtn");
-
-const loginHeading = document.getElementById("loginHeading");
-const registerHeading = document.getElementById("registerHeading");
-
-const message = document.getElementById("message");
-
-let currentRole = "admin";
-
-// ======================
-// TAB SWITCHING
-// ======================
-
-loginTab.addEventListener("click", () => {
-    loginTab.classList.add("active");
-    registerTab.classList.remove("active");
-
-    loginForm.classList.add("active");
-    registerForm.classList.remove("active");
-});
-
-registerTab.addEventListener("click", () => {
-    registerTab.classList.add("active");
-    loginTab.classList.remove("active");
-
-    registerForm.classList.add("active");
-    loginForm.classList.remove("active");
-});
-
-// ======================
-// ROLE SWITCHING
-// ======================
-
-adminBtn.addEventListener("click", () => {
-    currentRole = "admin";
-
-    adminBtn.classList.add("active");
-    studentBtn.classList.remove("active");
-
-    loginHeading.innerText = "Admin Login";
-    registerHeading.innerText = "Admin Register";
-});
-
-studentBtn.addEventListener("click", () => {
-    currentRole = "student";
-
-    studentBtn.classList.add("active");
-    adminBtn.classList.remove("active");
-
-    loginHeading.innerText = "Student Login";
-    registerHeading.innerText = "Student Register";
-});
-
-// ======================
-// LOGIN API
-// ======================
-
-loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    message.innerHTML = "Loading...";
-
-    const email = document.getElementById("loginEmail").value;
-    const password = document.getElementById("loginPassword").value;
-
-    const api =
-        currentRole === "admin"
-        ? ADMIN_LOGIN_API
-        : STUDENT_LOGIN_API;
-
-    try{
-        const response = await fetch(api,{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify({
-                email,
-                password
-            })
-        });
-
-        const data = await response.json();
-
-        if(response.ok){
-
-            message.className = "message success";
-            message.innerHTML = data.message || "Login Successful";
-
-            // Save Token
-            if(data.access_token){
-                localStorage.setItem("token",data.access_token);
-            }
-
-        }else{
-            message.className = "message error";
-            message.innerHTML = data.message || "Login Failed";
+        if (!response.ok) {
+          throw new Error(data.message || 'Request failed');
         }
 
-    }catch(error){
+        return data;
+      }
 
-        message.className = "message error";
-        message.innerHTML = "Server Error";
-        console.error(error);
-    }
-});
-
-// ======================
-// REGISTER API
-// ======================
-
-registerForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    message.innerHTML = "Loading...";
-
-    const name = document.getElementById("registerName").value;
-    const email = document.getElementById("registerEmail").value;
-    const password = document.getElementById("registerPassword").value;
-
-    const api =
-        currentRole === "admin"
-        ? ADMIN_REGISTER_API
-        : STUDENT_REGISTER_API;
-
-    try{
-
-        const response = await fetch(api,{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify({
-                name,
-                email,
-                password
-            })
-        });
-
-        const data = await response.json();
-
-        if(response.ok){
-
-            message.className = "message success";
-            message.innerHTML = data.message || "Registration Successful";
-
-            registerForm.reset();
-
-        }else{
-
-            message.className = "message error";
-            message.innerHTML = data.message || "Registration Failed";
+      async function resolveApiBase() {
+        if (state.apiBase) {
+          return state.apiBase;
         }
 
-    }catch(error){
+        const candidates = [
+          'http://localhost:3000/auth/api',
+          'http://localhost:3000/api/auth',
+          '/auth/api',
+          '/api/auth',
+        ];
 
-        message.className = "message error";
-        message.innerHTML = "Server Error";
-        console.error(error);
-    }
-});
+        for (const base of candidates) {
+          try {
+            const data = await requestJson(`${base}/users`);
+            state.apiBase = base;
+            return base;
+          } catch (error) {
+            console.warn(`Could not reach ${base}`);
+          }
+        }
 
-</script>
+        state.apiBase = 'http://localhost:4000/api/auth/users';
+        return state.apiBase;
+      }
 
-</body>
+      async function loadUsers() {
+        try {
+          const base = await resolveApiBase();
+          const data = await requestJson(`${base}/users`);
+          renderUsers(data);
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      }
+
+      function renderUsers(users) {
+        if (!Array.isArray(users) || users.length === 0) {
+          userListEl.innerHTML = '<li class="user-item">No users found.</li>';
+          return;
+        }
+
+        userListEl.innerHTML = users.map((user) => `
+          <li class="user-item">
+            <div class="user-info" data-email="${user.email}">
+              <div class="user-name">${user.name}</div>
+              <div class="user-email">${user.email}</div>
+            </div>
+            <div class="user-actions">
+              <button class="secondary view-btn" data-email="${user.email}">View</button>
+            </div>
+          </li>
+        `).join('');
+      }
+
+      async function viewUser(email) {
+        try {
+          const base = await resolveApiBase();
+          const data = await requestJson(`${base}/user?email=${encodeURIComponent(email)}`);
+          const user = Array.isArray(data) ? data[0] : data;
+
+          nameInput.value = user.name || '';
+          emailInput.value = user.email || '';
+          passwordInput.value = user.password || '';
+          state.selectedEmail = user.email;
+          submitBtn.textContent = 'Update User';
+          deleteBtn.disabled = false;
+          setStatus(`Loaded ${user.email}`, 'success');
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      }
+
+      async function submitUser() {
+        const payload = {
+          name: nameInput.value.trim(),
+          email: emailInput.value.trim(),
+          password: passwordInput.value.trim(),
+        };
+
+        if (!payload.name || !payload.email || !payload.password) {
+          setStatus('Please fill all fields.', 'error');
+          return;
+        }
+
+        try {
+          const base = await resolveApiBase();
+          const endpoint = state.selectedEmail ? `${base}/${encodeURIComponent(state.selectedEmail)}` : `${base}/adduser`;
+          const method = state.selectedEmail ? 'PATCH' : 'POST';
+          const data = await requestJson(endpoint, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          setStatus(state.selectedEmail ? 'User updated successfully.' : 'User added successfully.', 'success');
+          resetForm();
+          await loadUsers();
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      }
+
+      async function deleteUser() {
+        if (!state.selectedEmail) {
+          return;
+        }
+
+        try {
+          const base = await resolveApiBase();
+          const data = await requestJson(`${base}/deleteuser`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: state.selectedEmail }),
+          });
+
+          setStatus('User deleted successfully.', 'success');
+          resetForm();
+          await loadUsers();
+        } catch (error) {
+          setStatus(error.message, 'error');
+        }
+      }
+
+      submitBtn.addEventListener('click', submitUser);
+      clearBtn.addEventListener('click', () => {
+        resetForm();
+        setStatus('Form cleared.', 'success');
+      });
+      deleteBtn.addEventListener('click', deleteUser);
+
+      userListEl.addEventListener('click', async (event) => {
+        const button = event.target.closest('.view-btn');
+        if (button) {
+          await viewUser(button.dataset.email);
+          return;
+        }
+
+        const info = event.target.closest('.user-info');
+        if (info) {
+          await viewUser(info.dataset.email);
+        }
+      });
+
+      resetForm();
+      loadUsers();
+    </script>
+  </body>
 </html>
