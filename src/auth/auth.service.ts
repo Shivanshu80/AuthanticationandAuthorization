@@ -10,17 +10,16 @@ export class AuthService {
     ]
 
     getUsers(): User[] {
-        const usrs = this.users.map((u) => u);
+        const usrs = this.users.filter((u) => u);
         return usrs
     }
 
-    getUser(user: User): User[] {
-        const usr = this.users.filter((u) => u.email === user.email)
-        if (usr.length < 1) {
-            throw new NotFoundException('user not found')
-        } else {
-            return usr
+    getUser(email: string): User {
+        const usr = this.users.find((u) => u.email === email);
+        if (!usr) {
+            throw new NotFoundException('user not found');
         }
+        return usr;
     }
 
     addUser(user: User): any {
