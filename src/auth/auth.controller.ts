@@ -12,9 +12,9 @@ export class AuthController {
         return this.authService.getUsers();
     }
 
-    @Get('user')
-    getUser(@Body() user: User): User[] {
-        return this.authService.getUser(user);
+    @Get('user/:email')
+    getUser(@Param('email') email: string): User {
+        return this.authService.getUser(email);
     }
 
     @Post('adduser')

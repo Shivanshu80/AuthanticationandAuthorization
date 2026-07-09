@@ -209,9 +209,8 @@
         }
 
         const candidates = [
-          'http://localhost:3000/auth/api',
           'http://localhost:3000/api/auth',
-          '/auth/api',
+          'http://127.0.0.1:3000/api/auth',
           '/api/auth',
         ];
 
@@ -225,7 +224,7 @@
           }
         }
 
-        state.apiBase = 'http://localhost:4000/api/auth/users';
+        state.apiBase = 'http://localhost:4000/api/auth';
         return state.apiBase;
       }
 
@@ -259,9 +258,11 @@
       }
 
       async function viewUser(email) {
+        console.log(email)
         try {
           const base = await resolveApiBase();
-          const data = await requestJson(`${base}/user?email=${encodeURIComponent(email)}`);
+          const data = await requestJson(`${base}/user/${encodeURIComponent(email)}`);
+          console.log(data)
           const user = Array.isArray(data) ? data[0] : data;
 
           nameInput.value = user.name || '';
