@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { User } from './user.dto';
-
+import { ReturnUser } from './user.dto';
 @Injectable()
 export class AuthService {
     private users: User[] = [
@@ -9,61 +9,72 @@ export class AuthService {
         { name: 'kishan', email: 'kishan@gmail.com', password: 'kishan@123' }
     ]
 
-    getUsers(): User[] {
-        const usrs = this.users.filter((u) => u);
-        return usrs
-    }
-
-    getUser(email: string): User {
-        const usr = this.users.find((u) => u.email === email);
-        if (!usr) {
-            throw new NotFoundException('user not found');
-        }
-        return usr;
-    }
-
-    addUser(user: User): any {
-        const usrs = this.users.filter((u) => u.email === user.email);
+    async getUsers(): Promise<User[]> {
+        const usrs = await this.users.filter((u) => u);
         if (usrs.length !== 0) {
-            throw new UnauthorizedException('user already exists');
+            return usrs
         } else {
-            this.users.push(user);
+            throw new NotFoundException('Users Not Found');
         }
-        return {
-            message: 'user add successfully',
-            user: user
+    }
+
+   async getUser(email: string): Promise<ReturnUser> {
+        const usr = await this.users.find((u) => u.email === email);
+        if (usr === undefined) {
+            throw new NotFoundException('User Not Found');
+        } else {
+            const userData: ReturnUser = {
+                message: 'User Fetch Successfully',
+                user: usr
+            }
+            return userData
+        }
+    }
+
+    addUser(user: User): ReturnUser {
+        const usrs = this.users.find((u) => u.email === user.email);
+        if (usrs === undefined) {
+            this.users.push(user)
+            const userData: ReturnUser = {
+                message: 'User Added Successfully',
+                user: user
+            }
+            return userData
+        } else {
+            throw new NotFoundException('User Already Exists');
         }
     }
 
     deleteUser(user: User): any {
-        const usr = this.users.filter((u) => u.email === user.email)
-        if (usr.length !== 0) {
-            const indx = this.users.findIndex((u) => u.email === user.email)
-            this.users.splice(indx, 1)
-            return {
-                message: 'user deleted successfully',
-                user: usr
-            }
+        const usr = this.users.findIndex((u) => u.email === user.email)
+        if (usr === -1) {
+            throw new NotFoundException('User Not Found');
         } else {
-            throw new NotFoundException('user not found');
+            this.users.splice(usr, 1)
+            const userData: ReturnUser = {
+                message: 'User Deleted Successfully',
+                user: user
+            }
+            return userData
         }
 
     }
 
-    updateUser(param: string, user: User): any {
-        const usr = this.users.find((u) => u.email === param);
+    async updateUser(param: string, user: User): Promise<ReturnUser> {
+        const usr = await this.users.find((u) => u.email === param);
         if (usr === undefined) {
             throw new NotFoundException('user not found');
         } else {
-            if(!user.name || !user.email || !user.password){
-                throw new UnauthorizedException('please enter all felids correctly');
+            {
+                usr.name = user.name,
+                    usr.email = user.email,
+                    usr.password = user.password
             }
-            { usr.name = user.name, usr.email = user.email, usr.password = user.password }
-            const obj = {
+            const userData: ReturnUser = {
                 message: 'user updated successfully',
                 user: usr
             }
-            return obj
+            return userData
         }
     }
 

@@ -258,13 +258,12 @@
       }
 
       async function viewUser(email) {
-        console.log(email)
         try {
           const base = await resolveApiBase();
           const data = await requestJson(`${base}/user/${encodeURIComponent(email)}`);
           console.log(data)
           const user = Array.isArray(data) ? data[0] : data;
-
+          console.log(user)
           nameInput.value = user.name || '';
           emailInput.value = user.email || '';
           passwordInput.value = user.password || '';
